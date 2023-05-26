@@ -1,14 +1,12 @@
 package com.example.newsapp.data.network.utils
 
-import com.example.newsapp.data.model.response.auth.Authorization
-import com.example.newsapp.data.model.response.trips.TripSearch
 import retrofit2.Response
 
 /**
  * Responsible for converting api response to resource class
  */
 class ResponseConverter {
-
+/*
     fun searchTripsResponseToResult(response: Response<TripSearch>): Resource<TripSearch> {
         if (response.isSuccessful) {
             response.body()?.let {
@@ -43,6 +41,6 @@ class ResponseConverter {
             response.code(),
             response.message()
         )
-    }
+    }*/
 
 }
