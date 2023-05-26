@@ -3,14 +3,13 @@ package com.example.newsapp.data.localstorage
 import android.content.Context
 import android.content.SharedPreferences
 import com.example.newsapp.R
-import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 /**
  * Session manager that saves and fetches authToken data from SharedPreferences
  */
-class AuthLocalStorage @Inject constructor(
+class LocalStorage @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 

@@ -2,13 +2,18 @@ package com.example.newsapp.di
 
 
 import android.content.Context
-import com.example.newsapp.data.localstorage.AuthLocalStorage
+import com.example.newsapp.data.localstorage.LocalStorage
+import com.example.newsapp.data.network.api.ApiService
+import com.example.newsapp.data.network.utils.NetworkHelper
 import com.example.newsapp.data.network.utils.ResponseConverter
+import com.example.newsapp.data.repositoryImpl.RepositoryImpl
+import com.example.newsapp.domain.repository.Repository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Singleton
 
 /**
@@ -24,25 +29,25 @@ object RepositoryModule {
         return ResponseConverter()
     }
 
-  /*  @Provides
+    @Provides
     @Singleton
     fun provideRepository(
         apiService: ApiService,
         responseConverter: ResponseConverter,
         dispatcher: CoroutineDispatcher,
         networkHelper: NetworkHelper,
-        authLocalStorage: AuthLocalStorage
+        authLocalStorage: LocalStorage
     ): Repository {
         return RepositoryImpl(apiService, responseConverter, dispatcher, networkHelper, authLocalStorage)
     }
-*/
+
 
     @Provides
     @Singleton
-    fun provideAuthLocalStorage(
+    fun provideLocalStorage(
         @ApplicationContext context: Context
-    ): AuthLocalStorage {
-        return AuthLocalStorage(context)
+    ): LocalStorage {
+        return LocalStorage(context)
     }
 
 }

@@ -1,6 +1,7 @@
 package com.example.newsapp.di
 
 import android.content.Context
+import com.example.newsapp.presentation.adapters.NewsAdapter
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,12 +13,12 @@ import com.example.newsapp.presentation.utils.ResourcesProvider
 @Module
 @InstallIn(SingletonComponent::class)
 object UiModule {
-/*
+
     @Provides
     @Singleton
     fun provideNewsAdapter(): NewsAdapter {
         return NewsAdapter()
-    }*/
+    }
 
     @Provides
     @Singleton

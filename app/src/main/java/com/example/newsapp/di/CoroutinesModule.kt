@@ -14,5 +14,4 @@ object CoroutinesModule {
     @Provides
     @Singleton
     fun provideIoDispatcher() = Dispatchers.IO
-
 }

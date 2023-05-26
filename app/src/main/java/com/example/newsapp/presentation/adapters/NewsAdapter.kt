@@ -9,9 +9,12 @@ import com.example.newsapp.data.model.response.Article
 import com.example.newsapp.databinding.ArticleListItemBinding
 
 
-class NewsAdapter : ListAdapter<Article, TripViewHolder>(TripsDiffCallBack()) {
+class NewsAdapter : ListAdapter<Article, NewsViewHolder>(ArticlesDiffCallBack()) {
     fun getList(): List<Article> = currentList
-    fun setList(list: MutableList<Article>) = submitList(list)
+    fun setList(list: MutableList<Article>) {
+        submitList(null)
+        submitList(list)
+    }
 
 
     private var onItemClickListener: ((Article) -> Unit)? = null
@@ -19,8 +22,8 @@ class NewsAdapter : ListAdapter<Article, TripViewHolder>(TripsDiffCallBack()) {
         onItemClickListener = listener
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripViewHolder {
-        return TripViewHolder(
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsViewHolder {
+        return NewsViewHolder(
             ArticleListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         )
     }
@@ -32,22 +35,26 @@ class NewsAdapter : ListAdapter<Article, TripViewHolder>(TripsDiffCallBack()) {
     override fun getItemCount(): Int = getList().size
 
 
-    override fun onBindViewHolder(holder: TripViewHolder, position: Int) {
-        holder.bind(currentList[position])
+    override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
+        holder.bind(currentList[position], onItemClickListener)
     }
 }
 
-class TripViewHolder(private val binding: ArticleListItemBinding) :
+class NewsViewHolder(private val binding: ArticleListItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: Article) {
+    fun bind(item: Article, onItemClickListener: ((Article) -> Unit)?) {
         binding.article = item
         binding.executePendingBindings()
+
+        binding.root.setOnClickListener {
+            onItemClickListener?.invoke(item)
+        }
     }
 }
 
 
-private class TripsDiffCallBack : DiffUtil.ItemCallback<Article>() {
+private class ArticlesDiffCallBack : DiffUtil.ItemCallback<Article>() {
     override fun areItemsTheSame(oldItem: Article, newItem: Article): Boolean =
         oldItem.hashCode() == newItem.hashCode()
 

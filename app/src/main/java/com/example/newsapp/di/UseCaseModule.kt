@@ -1,5 +1,8 @@
 package com.example.newsapp.di
 
+import com.example.newsapp.domain.repository.Repository
+import com.example.newsapp.domain.usecases.FetchTopNewsUseCase
+import com.example.newsapp.domain.usecases.SearchNewsUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,8 +20,12 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object UseCaseModule {
 
-  /*  @Provides
+    @Provides
     @Singleton
-    fun provideUseCase(repository: Repository) = UseCase(repository)
-*/
+    fun provideFetchTopNewsUseCase(repository: Repository) = FetchTopNewsUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideSearchNewsUseCase(repository: Repository) = SearchNewsUseCase(repository)
+
 }
