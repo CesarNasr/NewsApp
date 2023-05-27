@@ -4,12 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.newsapp.R
 import com.example.newsapp.data.network.utils.Resource
-import com.example.newsapp.domain.usecases.FetchTopNewsUseCase
-import com.example.newsapp.domain.usecases.SearchNewsUseCase
+import com.example.newsapp.domain.repository.Repository
 import com.example.newsapp.presentation.utils.ResourcesProvider
 import com.example.newsapp.presentation.utils.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -23,8 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewsViewModel @Inject constructor(
-    private val fetchNewsUseCase: FetchTopNewsUseCase,
-    private val searchNewsUseCase: SearchNewsUseCase,
+    private val repository: Repository,
     private val resourcesProvider: ResourcesProvider
 ) : ViewModel() {
 
@@ -46,9 +43,10 @@ class NewsViewModel @Inject constructor(
         viewModelScope.launch {
             _newsUiState.emit(UiState.Loading)
             try {
-                when (val response = fetchNewsUseCase.invoke()) {
+                when (val response = repository.fetchArticles()) {
 
                     is Resource.Success -> {
+                       //todo here updateNew in DB
                         response.data?.let {
                             _newsUiState.emit(UiState.Loaded(data = it.articles))
                             /*        authLocalStorageUseCases.saveAuthToken(response.data.accessToken ?: "")
@@ -83,7 +81,7 @@ class NewsViewModel @Inject constructor(
         viewModelScope.launch {
             _newsUiState.emit(UiState.Loading)
             try {
-                when (val response = searchNewsUseCase.invoke(query)) {
+                when (val response = repository.searchArticles(query)) {
 
                     is Resource.Success -> {
                         response.data?.let {
@@ -127,6 +125,9 @@ class NewsViewModel @Inject constructor(
             _newsUiState.emit(UiState.Error(message = errorMessage))
         }
     }
+
+
+
 
 
 }

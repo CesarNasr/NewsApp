@@ -4,42 +4,44 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.example.newsapp.R
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.sql.Timestamp
 import javax.inject.Inject
 
 /**
- * Session manager that saves and fetches authToken data from SharedPreferences
+ * Storage manager that saves and fetches timestamp data from SharedPreferences
  */
 class LocalStorage @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
-    private var prefs: SharedPreferences = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
+    private var prefs: SharedPreferences =
+        context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
 
     companion object {
-        const val AUTH_TOKEN = "auth_token"
+        const val KEY_TIME_STAMP = "time_stamp"
     }
 
     /**
-     * Function to save auth token
+     * Function to save timestamp
      */
-    fun saveAuthData(
-        authToken: String?,
+    fun saveTimeStampData(
+        timestamp: Long,
     ) {
         val editor = prefs.edit()
-        authToken?.let { editor.putString(AUTH_TOKEN, authToken) }
+        editor.putLong(KEY_TIME_STAMP, timestamp)
         editor.apply()
     }
 
-    fun clearAuthData(){
+    fun clearTimeStampData() {
         val editor = prefs.edit()
         editor.clear().apply()
     }
 
     /**
-     * Function to fetch auth token
+     * Function to fetch timestamp
      */
-    fun getAuthToken(): String {
-        return prefs.getString(AUTH_TOKEN, "").toString()
+    fun getTimeStampData(): Long {
+        return prefs.getLong(KEY_TIME_STAMP, -1)
     }
 
 }

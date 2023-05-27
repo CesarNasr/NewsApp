@@ -7,6 +7,7 @@ import com.example.newsapp.data.network.api.ApiService
 import com.example.newsapp.data.network.utils.NetworkHelper
 import com.example.newsapp.data.network.utils.ResponseConverter
 import com.example.newsapp.data.repositoryImpl.RepositoryImpl
+import com.example.newsapp.data.utils.ArticleMapper
 import com.example.newsapp.domain.repository.Repository
 import dagger.Module
 import dagger.Provides
@@ -31,6 +32,10 @@ object RepositoryModule {
 
     @Provides
     @Singleton
+    fun provideArticleMapper() = ArticleMapper()
+
+    @Provides
+    @Singleton
     fun provideRepository(
         apiService: ApiService,
         responseConverter: ResponseConverter,
@@ -38,7 +43,13 @@ object RepositoryModule {
         networkHelper: NetworkHelper,
         authLocalStorage: LocalStorage
     ): Repository {
-        return RepositoryImpl(apiService, responseConverter, dispatcher, networkHelper, authLocalStorage)
+        return RepositoryImpl(
+            apiService,
+            responseConverter,
+            dispatcher,
+            networkHelper,
+            authLocalStorage
+        )
     }
 
 
