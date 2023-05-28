@@ -36,6 +36,8 @@ Layouts and Designs:
 - Material Design
 - Data binding
 
+Remote Data Source:
+- News APi : https://newsapi.org/
 
 What could have been added :
 - Fully implementing Clean Architecture (added UseCase classes)
