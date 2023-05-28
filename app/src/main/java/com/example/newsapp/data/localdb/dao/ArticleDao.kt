@@ -31,8 +31,8 @@ interface ArticleDao {
     }
 
     /**
-     * I have used flows and coroutines for applying reactive programming where the wishlist and basket badges
-     * are always observed form the ROOM database and thus the UI will always be updated when removing/adding items to
+     * I have used flows and coroutines for applying reactive programming for fetching data from room db
+     * these data are always observed form the ROOM database and thus the UI will always be updated when removing/adding items to
      * the database table.
      */
 }

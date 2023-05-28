@@ -23,9 +23,4 @@ object DbModule {
     fun provideRoomInstance(@ApplicationContext context: Context): AppDatabase {
         return AppDatabase.invoke(context)
     }
-
-    /* return Room.databaseBuilder(
-     context,
-     AppDatabase::class.java, DB_NAME
-     ).build()*/
 }

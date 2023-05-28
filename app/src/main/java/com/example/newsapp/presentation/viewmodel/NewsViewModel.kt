@@ -31,7 +31,6 @@ class NewsViewModel @Inject constructor(
     private val _newsUiState = MutableSharedFlow<UiState>()
     val newsUiState: SharedFlow<UiState> = _newsUiState
 
-
     init {
         fetchNews()
     }
@@ -41,8 +40,9 @@ class NewsViewModel @Inject constructor(
         toggleLoadingView(!forceRefresh)
 
         viewModelScope.launch {
-            repository.fetchNews(forceRefresh).collect {
-                try {
+            try {
+                repository.fetchNews(forceRefresh).collect {
+
                     when (it) {
                         is Resource.Success -> {
                             _newsUiState.emit(UiState.Loaded(data = it.data?.articles))
@@ -52,23 +52,23 @@ class NewsViewModel @Inject constructor(
                             onErrorOccurred(false)
                         }
 
-                        is Resource.Loading -> {
-                        }
+                        is Resource.Loading -> {}
                     }
                     toggleLoadingView(false)
 
-                } catch (e: Exception) {
-                    toggleLoadingView(false)
-                    onErrorOccurred(e is HttpException || e is IOException)
                 }
+            } catch (e: Exception) {
+                toggleLoadingView(false)
+                onErrorOccurred(e is HttpException || e is IOException)
             }
         }
     }
 
     fun searchNews(query: String) {
         viewModelScope.launch {
-            repository.searchArticles(query).collect {
-                try {
+            try {
+                repository.searchArticles(query).collect {
+
                     when (it) {
                         is Resource.Success -> {
                             _newsUiState.emit(UiState.Loaded(data = it.data))
@@ -78,15 +78,14 @@ class NewsViewModel @Inject constructor(
                             onErrorOccurred(false)
                         }
 
-                        is Resource.Loading -> {
-                        }
+                        is Resource.Loading -> {}
                     }
                     toggleLoadingView(false)
 
-                } catch (e: Exception) {
-                    toggleLoadingView(false)
-                    onErrorOccurred(e is HttpException || e is IOException)
                 }
+            } catch (e: Exception) {
+                toggleLoadingView(false)
+                onErrorOccurred(e is HttpException || e is IOException)
             }
         }
     }

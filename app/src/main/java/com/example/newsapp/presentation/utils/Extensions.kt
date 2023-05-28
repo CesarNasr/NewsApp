@@ -12,17 +12,15 @@ fun View.snack(message: String) {
     snack.show()
 }
 
-
-/*
-fun String.dateReformat(date : String): Long {
+fun String.dateReformat(currentData : String): Long {
     val date: Date
     val df = SimpleDateFormat("yyyyMMddHHmmss", Locale.US)
 
     date = try {
-        df.parse(java.lang.String.valueOf(_time.getTime())) as Date
+        df.parse(java.lang.String.valueOf(currentData)) as Date
     } catch (e: ParseException) {
         throw RuntimeException("Failed to parse date: ", e)
     }
 
     return date.time
-}*/
+}

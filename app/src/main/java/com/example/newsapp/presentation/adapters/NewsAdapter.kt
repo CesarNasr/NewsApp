@@ -10,7 +10,7 @@ import com.example.newsapp.databinding.ArticleListItemBinding
 
 
 class NewsAdapter : ListAdapter<Article, NewsViewHolder>(ArticlesDiffCallBack()) {
-    fun getList(): List<Article> = currentList
+    private fun getList(): List<Article> = currentList
     fun setList(list: MutableList<Article>) {
         submitList(null)
         submitList(list)

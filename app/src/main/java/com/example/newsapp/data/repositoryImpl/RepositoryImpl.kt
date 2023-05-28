@@ -34,12 +34,15 @@ class RepositoryImpl @Inject constructor(
 
     override suspend fun fetchNews(forceRefresh: Boolean): Flow<Resource<ApiEntry>> {
 
+        // if user force refreshes the list, or the data requires update, fetch data from remote data source
         if (forceRefresh || shouldUpdateDB()) {
-            (fetchRemoteArticles())
+            fetchRemoteArticles()
         }
 
+        // reactively listen to local db updates and emit data to the next layer
         return db.ArticleDao().getAll().transform {
             if (it.isEmpty()) {
+                // if local list is empty, retry fetch data from remote data source
                 emit(fetchRemoteArticles())
             } else {
                 emit(Resource.Success(ApiEntry(articles = articleMapper.mapFromEntityList(it))))
@@ -65,6 +68,7 @@ class RepositoryImpl @Inject constructor(
     }
 
 
+    // saves updated news to local db if results were success - API call successfully fetched
     private suspend fun saveLocalNews(result: Resource<ApiEntry>) = withContext(ioDispatcher) {
         if (result is Resource.Success<ApiEntry>) {
             result.data?.articles?.let {
@@ -73,6 +77,7 @@ class RepositoryImpl @Inject constructor(
         }
     }
 
+    // updates timestamp if results were success - API call successfully fetched
     private fun updateCurrentTimeStamp(results: Resource<ApiEntry>) {
         if (results is Resource.Success<ApiEntry>) {
             saveTimeStamp(System.currentTimeMillis())
@@ -85,6 +90,7 @@ class RepositoryImpl @Inject constructor(
 
     private fun getPrevTimeStamp(): Long = localStorage.getTimeStampData()
 
+    // Checks weather 24 hrs has passed since the last remote api call occurred
     private fun shouldUpdateDB(): Boolean {
         return if (getPrevTimeStamp() <= -1) {
             true

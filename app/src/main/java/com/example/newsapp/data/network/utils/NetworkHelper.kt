@@ -44,10 +44,4 @@ class NetworkHelper @Inject constructor(@ApplicationContext private val context:
         return false
 
     }
-
-    fun getDeviceUuid() = UUID.randomUUID().toString()
-
-    //fun getAndroidClientName() = "Android|${Build.VERSION.RELEASE}"
-    fun getAndroidClientName() = "Android|1.2.3"
-
 }

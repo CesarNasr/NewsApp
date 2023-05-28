@@ -55,6 +55,10 @@ class NewsFragment : Fragment() {
         binding.swipeLayout.setOnRefreshListener {
             viewModel.fetchNews(true)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
 
         val handler = Handler(Looper.getMainLooper())
 
@@ -65,13 +69,13 @@ class NewsFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String): Boolean {
 
-                    handler.postDelayed({
-                        if (newText.length > 2) {
-                            viewModel.searchNews(newText)
-                        } else if (newText.isEmpty()) {
-                            viewModel.fetchNews()
-                        }
-                    }, 500)
+                handler.postDelayed({
+                    if (newText.length > 2) {
+                        viewModel.searchNews(newText)
+                    } else if (newText.isEmpty()) {
+                        viewModel.fetchNews()
+                    }
+                }, 500)
 
                 return true
             }
@@ -82,12 +86,11 @@ class NewsFragment : Fragment() {
             binding.searchView.findViewById(androidx.appcompat.R.id.search_close_btn)
 
         closeButton?.setOnClickListener {
-            viewModel.fetchNews()
+            //viewModel.fetchNews()
             binding.searchView.setQuery("", false)
             binding.searchView.clearFocus()
         }
     }
-
 
     private fun initRecyclerView() {
         binding.newsRecyclerview.apply {
@@ -128,16 +131,7 @@ class NewsFragment : Fragment() {
 
                             is UiState.Error -> {
                                 binding.swipeLayout.isRefreshing = false
-
-                                Toast.makeText(requireContext(), uiState.message, Toast.LENGTH_LONG)
-                                    .show()
-                                // show error dialog if needed using error message : {uiState.message}
-                            }
-
-                            UiState.Empty -> {
-                            }
-
-                            UiState.Loading -> {
+                                Toast.makeText(requireContext(), uiState.message, Toast.LENGTH_LONG).show()
                             }
                         }
                     }
