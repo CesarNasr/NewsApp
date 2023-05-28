@@ -37,76 +37,56 @@ class NewsViewModel @Inject constructor(
     }
 
 
-    fun fetchNews(isRefreshed : Boolean = false) {
-        toggleLoadingView(!isRefreshed)
+    fun fetchNews(forceRefresh: Boolean = false) {
+        toggleLoadingView(!forceRefresh)
 
         viewModelScope.launch {
-            _newsUiState.emit(UiState.Loading)
-            try {
-                when (val response = repository.fetchArticles()) {
+            repository.fetchNews(forceRefresh).collect {
+                try {
+                    when (it) {
+                        is Resource.Success -> {
+                            _newsUiState.emit(UiState.Loaded(data = it.data?.articles))
+                        }
 
-                    is Resource.Success -> {
-                       //todo here updateNew in DB
-                        response.data?.let {
-                            _newsUiState.emit(UiState.Loaded(data = it.articles))
-                            /*        authLocalStorageUseCases.saveAuthToken(response.data.accessToken ?: "")
-                                    _authUiState.value = UiState.Loaded()
-                                    invokePendingApiCalls()*/
+                        is Resource.Error -> {
+                            onErrorOccurred(false)
+                        }
+
+                        is Resource.Loading -> {
                         }
                     }
+                    toggleLoadingView(false)
 
-                    is Resource.Error -> {
-                        onErrorOccurred(false)
-                    }
-
-                    is Resource.Loading -> {
-                        /*
-                                                _authUiState.value = UiState.Loading
-                        */
-                    }
+                } catch (e: Exception) {
+                    toggleLoadingView(false)
+                    onErrorOccurred(e is HttpException || e is IOException)
                 }
-                toggleLoadingView(false)
-
-            } catch (e: Exception) {
-                toggleLoadingView(false)
-                onErrorOccurred(e is HttpException || e is IOException)
             }
         }
     }
 
-
     fun searchNews(query: String) {
-        toggleLoadingView(true)
-
         viewModelScope.launch {
-            _newsUiState.emit(UiState.Loading)
-            try {
-                when (val response = repository.searchArticles(query)) {
+            repository.searchArticles(query).collect {
+                try {
+                    when (it) {
+                        is Resource.Success -> {
+                            _newsUiState.emit(UiState.Loaded(data = it.data))
+                        }
 
-                    is Resource.Success -> {
-                        response.data?.let {
-                            _newsUiState.emit(UiState.Loaded(data = it.articles))
-                            /*        authLocalStorageUseCases.saveAuthToken(response.data.accessToken ?: "")
-                                    _authUiState.value = UiState.Loaded()
-                                    invokePendingApiCalls()*/
+                        is Resource.Error -> {
+                            onErrorOccurred(false)
+                        }
+
+                        is Resource.Loading -> {
                         }
                     }
+                    toggleLoadingView(false)
 
-                    is Resource.Error -> {
-                        onErrorOccurred(false)
-                    }
-
-                    is Resource.Loading -> {
-                        /*
-                                                _authUiState.value = UiState.Loading
-                        */
-                    }
+                } catch (e: Exception) {
+                    toggleLoadingView(false)
+                    onErrorOccurred(e is HttpException || e is IOException)
                 }
-                toggleLoadingView(false)
-
-            } catch (e: Exception) {
-                toggleLoadingView(false)
-                onErrorOccurred(e is HttpException || e is IOException)
             }
         }
     }
@@ -125,9 +105,6 @@ class NewsViewModel @Inject constructor(
             _newsUiState.emit(UiState.Error(message = errorMessage))
         }
     }
-
-
-
 
 
 }

@@ -1,20 +1,13 @@
 package com.example.newsapp.domain.repository
 
-import com.example.newsapp.data.localdb.model.LocalArticle
 import com.example.newsapp.data.model.response.ApiEntry
+import com.example.newsapp.data.model.response.Article
 import com.example.newsapp.data.network.utils.Resource
+import kotlinx.coroutines.flow.Flow
 
 interface Repository {
 
-    /*remote api calls*/
-    suspend fun fetchArticles(): Resource<ApiEntry>
-    suspend fun searchArticles(query: String): Resource<ApiEntry>
+    suspend fun fetchNews(forceRefresh: Boolean = false): Flow<Resource<ApiEntry>>
+    suspend fun searchArticles(query: String): Flow<Resource<List<Article>>>
 
-    /*local db*/
-    fun saveLocalNews(articles: List<LocalArticle>)
-    fun fetchLocalNews(): List<LocalArticle>
-
-    /*local storage*/
-    fun saveTimeStamp(timestamp : Long)
-    fun getTimeStamp(): Long
 }

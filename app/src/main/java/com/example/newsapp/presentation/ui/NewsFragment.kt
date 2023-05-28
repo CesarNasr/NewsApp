@@ -47,7 +47,6 @@ class NewsFragment : Fragment() {
         return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
@@ -61,36 +60,32 @@ class NewsFragment : Fragment() {
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                TODO("Not yet implemented")
-            }
-
-            /*     override fun onQueryTextSubmit(query: String): Boolean {
-
-                     if (query.length >= 3) {
-                         searchLayout.visibility = View.VISIBLE
-                         searchView?.clearFocus()
-                         page = 0
-                         isLastPage = false
-                         presenter.getVoiceRoomCelebritySearchItems(query.trim().toString(), sectionId, page, PAGE_ITEM_SIZE)
-                         return false
-                     }
-
-                     return true
-                 }
-     */
-            override fun onQueryTextChange(newText: String): Boolean {
-                handler.postDelayed({
-                    if (newText.length > 2) {
-                        viewModel.searchNews(newText)
-                    }
-                }, 300)
-
-                /*  else if(newText.isEmpty()) {
-
-                   }*/
                 return false
             }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+
+                    handler.postDelayed({
+                        if (newText.length > 2) {
+                            viewModel.searchNews(newText)
+                        } else if (newText.isEmpty()) {
+                            viewModel.fetchNews()
+                        }
+                    }, 500)
+
+                return true
+            }
         })
+
+
+        val closeButton: View? =
+            binding.searchView.findViewById(androidx.appcompat.R.id.search_close_btn)
+
+        closeButton?.setOnClickListener {
+            viewModel.fetchNews()
+            binding.searchView.setQuery("", false)
+            binding.searchView.clearFocus()
+        }
     }
 
 

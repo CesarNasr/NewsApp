@@ -11,33 +11,28 @@ interface ArticleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(order: List<LocalArticle>)
 
+    @Query("DELETE FROM localArticle")
+    fun clearAll()
+
     @Query("SELECT * FROM localArticle")
     fun getAll(): Flow<List<LocalArticle>>
 
-    @Query("SELECT * FROM localArticle WHERE title LIKE '%' || :title || '%' OR description LIKE '%' || :description || '%' OR author LIKE '%' || :author || '%' OR content LIKE '%' || :content || '%'")
+
+    @Query("SELECT * FROM localArticle WHERE title LIKE '%' || :query || '%' OR description LIKE '%' || :query || '%' OR author LIKE '%' || :query || '%' OR content LIKE '%' || :query || '%'")
     fun searchArticles(
-        title: String,
-        description: String,
-        author: String,
-        content: String
+        query :String
     ): Flow<List<LocalArticle>>
+
+
+    @Transaction
+    fun insertAllArticles(order: List<LocalArticle>){
+        clearAll()
+        insertAll(order)
+    }
 
     /**
      * I have used flows and coroutines for applying reactive programming where the wishlist and basket badges
      * are always observed form the ROOM database and thus the UI will always be updated when removing/adding items to
      * the database table.
      */
-
-/*    @Query("SELECT COUNT(*) FROM wishlist")
-    fun getReactiveWishListCount() : Flow<Int>
-
-    @Query("SELECT COUNT(*) FROM wishlist")
-    fun getWishListCount() : Int
-
-
-    @Transaction
-    fun deleteItemAndGetCount(wishlist : Wishlist): Int {
-        deleteItem(wishlist)
-       return getWishListCount()
-    }*/
 }

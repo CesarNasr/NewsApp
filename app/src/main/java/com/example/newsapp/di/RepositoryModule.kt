@@ -2,6 +2,7 @@ package com.example.newsapp.di
 
 
 import android.content.Context
+import com.example.newsapp.data.localdb.database.AppDatabase
 import com.example.newsapp.data.localstorage.LocalStorage
 import com.example.newsapp.data.network.api.ApiService
 import com.example.newsapp.data.network.utils.NetworkHelper
@@ -40,15 +41,17 @@ object RepositoryModule {
         apiService: ApiService,
         responseConverter: ResponseConverter,
         dispatcher: CoroutineDispatcher,
-        networkHelper: NetworkHelper,
-        authLocalStorage: LocalStorage
+        appDatabase: AppDatabase,
+        articleMapper: ArticleMapper,
+        localStorage: LocalStorage
     ): Repository {
         return RepositoryImpl(
             apiService,
             responseConverter,
             dispatcher,
-            networkHelper,
-            authLocalStorage
+            appDatabase,
+            articleMapper,
+            localStorage
         )
     }
 

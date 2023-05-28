@@ -1,17 +1,18 @@
 package com.example.newsapp.data.repositoryImpl
 
 import com.example.newsapp.data.localdb.database.AppDatabase
-import com.example.newsapp.data.localdb.model.LocalArticle
 import com.example.newsapp.data.localstorage.LocalStorage
 import com.example.newsapp.data.model.response.ApiEntry
 import com.example.newsapp.data.model.response.Article
 import com.example.newsapp.data.network.api.ApiService
-import com.example.newsapp.data.network.utils.NetworkHelper
 import com.example.newsapp.data.network.utils.Resource
 import com.example.newsapp.data.network.utils.ResponseConverter
 import com.example.newsapp.data.utils.ArticleMapper
 import com.example.newsapp.domain.repository.Repository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -26,48 +27,69 @@ class RepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     private val responseConverter: ResponseConverter,
     private val ioDispatcher: CoroutineDispatcher,
-    private val networkHelper: NetworkHelper,
     private val db: AppDatabase,
     private val articleMapper: ArticleMapper,
     private val localStorage: LocalStorage
 ) : Repository {
 
-    override suspend fun fetchArticles(): Resource<ApiEntry> {
-        if (shouldUpdateDB()) {
-            saveTimeStamp(currentTimeStamp)
-            saveLocalNews(articleMapper.mapToEntityList(news))
+    override suspend fun fetchNews(forceRefresh: Boolean): Flow<Resource<ApiEntry>> {
+
+        if (forceRefresh || shouldUpdateDB()) {
+            (fetchRemoteArticles())
         }
 
+        return db.ArticleDao().getAll().transform {
+            if (it.isEmpty()) {
+                emit(fetchRemoteArticles())
+            } else {
+                emit(Resource.Success(ApiEntry(articles = articleMapper.mapFromEntityList(it))))
+            }
+        }.flowOn(ioDispatcher)
+    }
 
+
+    override suspend fun searchArticles(query: String): Flow<Resource<List<Article>>> {
+        return db.ArticleDao().searchArticles(query).transform {
+            emit(Resource.Success(articleMapper.mapFromEntityList(it)))
+        }.flowOn(ioDispatcher)
+    }
+
+
+    private suspend fun fetchRemoteArticles(): Resource<ApiEntry> {
         return withContext(ioDispatcher) {
-            responseConverter.responseToResults(apiService.fetchTopNews())
-
+            val results = responseConverter.responseToResults(apiService.fetchTopNews())
+            updateCurrentTimeStamp(results)
+            saveLocalNews(results)
+            results
         }
     }
 
-    override suspend fun searchArticles(query: String): Resource<ApiEntry> {
-        return withContext(ioDispatcher) {
-            responseConverter.responseToResults(apiService.searchNews(query))
+
+    private suspend fun saveLocalNews(result: Resource<ApiEntry>) = withContext(ioDispatcher) {
+        if (result is Resource.Success<ApiEntry>) {
+            result.data?.articles?.let {
+                db.ArticleDao().insertAllArticles(articleMapper.mapToEntityList(it))
+            }
         }
     }
 
-    override fun saveLocalNews(articles: List<LocalArticle>) {
-        db.ArticleDao().insertAll(articles)
+    private fun updateCurrentTimeStamp(results: Resource<ApiEntry>) {
+        if (results is Resource.Success<ApiEntry>) {
+            saveTimeStamp(System.currentTimeMillis())
+        }
     }
 
-    override fun fetchLocalNews(): List<LocalArticle> = db.ArticleDao().getAll()
-
-
-    override fun saveTimeStamp(timestamp: Long) {
+    private fun saveTimeStamp(timestamp: Long) {
         localStorage.saveTimeStampData(timestamp)
     }
 
-    override fun getTimeStamp(): Long = localStorage.getTimeStampData()
-
-
+    private fun getPrevTimeStamp(): Long = localStorage.getTimeStampData()
 
     private fun shouldUpdateDB(): Boolean {
-        val currentTimeStamp = System.currentTimeMillis()
-        return currentTimeStamp - getTimeStamp() > (UPDATE_LOCALE_NEWS * 60 * 60 * 1000)
+        return if (getPrevTimeStamp() <= -1) {
+            true
+        } else {
+            System.currentTimeMillis() - getPrevTimeStamp() > (UPDATE_LOCALE_NEWS * 60 * 60 * 1000)
+        }
     }
 }
